@@ -33,9 +33,9 @@ subject models over time.
 | MARC-verified (figurative works) | ~80–150 | **104** | 172 too transparent, 74 never succeed |
 | Alternative figurative clues | ~400–800 | **720 MARC-valid** (of 1,560 generated) | 47.6% MARC yield across 15 domains |
 
-The initial "LARC-equivalent" database is the **validated descriptions** — that's the new
-thing this project produces. With 82.1% solve rate on training (vs 70% estimated), the
-downstream yield should be significantly larger than initially projected.
+Every stage met or exceeded estimates. The initial "LARC-equivalent" database (791 validated
+descriptions) and the final MARC corpus (824 clues across 104 puzzles and 15 domains)
+both significantly exceeded projections.
 
 ---
 
@@ -342,41 +342,73 @@ For each MARC-verified puzzle:
 
 ## Phase 9: Analysis and Export
 
-### Implementation: `analyze.py`, `inspector.py`
+### Implementation
 
-- Generate report.html with Plotly charts
-- Generate inspect.html (tabbed variant browser)
-- Generate compare.html (variant comparison view)
-- Export HuggingFace Parquet dataset
+- `analyze.py` — Plotly HTML report with 7 charts (funnel, baselines, subsets, MARC yield
+  by domain, min_k distribution, cell accuracy, opacity analysis)
+- `inspector.py inspect` — interactive puzzle browser with grids, variant tabs, trial results
+- `inspector.py compare` — side-by-side variant comparison view
+- `export_hf_dataset.py` — HuggingFace Parquet export (7 configs, 2MB total)
+
+### Results (March 26, 2026)
+
+| Output | Description |
+|--------|-------------|
+| `report.html` (87K) | 7 Plotly charts + summary tables |
+| `inspect.html` (11M) | Interactive puzzle browser, collapsible nav |
+| `compare.html` (11M) | All 16 variants per puzzle side-by-side |
+| `hf_dataset/` (2MB) | 7 Parquet tables for HuggingFace |
+
+### Publication
+
+| Resource | URL |
+|----------|-----|
+| Interactive inspector | https://bertybaums.github.io/marc2/ |
+| GitHub | https://github.com/bertybaums/marc2 |
+| HuggingFace | https://huggingface.co/datasets/bertybaums/marc2 |
+| DOI | https://doi.org/10.5281/zenodo.19241782 |
 
 ---
 
-## Implementation Order
+## Project Completion Summary
 
-### Sprint 1: Setup & Infrastructure
-1. Clone ARC-AGI2 dataset (`bash setup.sh`)
-2. Port and adapt from marc-from-larc:
-   - `db.py`, `grids.py`, `utils.py` (minimal changes)
-   - `tasks.py` (adapt for ARC-AGI2 directory layout)
-   - `schema.sql` (done — adds solve_trials + descriptions tables)
-   - `config.yaml` (done — no Anthropic API config needed for subagents)
-   - `prompts.py` (add solve/distill/validate prompt templates; inherit condition prompts)
+**MARC2 completed March 25–26, 2026** across 4 sprints spanning 2 days.
 
-### Sprint 2: Solve Pipeline (Phases 1-3)
-3. Implement `solve.py` — subagent orchestrator for solving
-4. Implement `distill.py` — subagent orchestrator for description generation
-5. Implement `validate.py` — subagent orchestrator for validation
+### Final Yield Funnel
 
-### Sprint 3: MARC Pipeline (Phases 4-8)
-6. Port `collect.py`, `subset.py` from marc-from-larc (MindRouter API calls)
-7. Port `generate_figurative.py` (subagents), `test_figurative.py` (MindRouter)
-8. Port `generate_alternatives.py` (subagents for generation, MindRouter for testing)
+```
+1,000  ARC-AGI2 training tasks
+  865  solved by Claude Opus 4.6 (86.5%)
+  791  validated language-complete descriptions (91.4%)
+  350  MARC-eligible for gpt-oss-120b (44.3%)
+  104  MARC-verified puzzles
+  824  total MARC-valid figurative clues (720 alternatives + 104 original)
+```
 
-### Sprint 4: Analysis & Export (Phase 9)
-9. Port `analyze.py`, `inspector.py`, export script
+### Comparison to MARC-from-LARC
 
-## Cost
+| Metric | MARC-from-LARC | MARC2 | Improvement |
+|--------|:-:|:-:|:-:|
+| Source tasks | 400 | 1,000 | 2.5× |
+| Validated descriptions | 400 | 791 | 2.0× |
+| MARC-eligible | ~95 | 350 | 3.7× |
+| MARC-verified puzzles | 45 | 104 | 2.3× |
+| MARC-valid clues | 250 | 824 | 3.3× |
+| Source domains | 7 | 15 | 2.1× |
+
+### Cost
 
 - **Phases 1-3, 6, 8 (Claude work):** Covered by Max plan — all via Claude Code subagents
-- **Phases 4-5, 7 (Subject model testing):** MindRouter (free on U of Idaho HPC)
+- **Phases 4-5, 7-8 verification (Subject model testing):** MindRouter (free on U of Idaho HPC)
 - **Total out-of-pocket: $0**
+
+### Key Technical Insights
+
+1. **Claude Code CLI subagents** (`claude -p --tools ""`) are an effective execution model
+   for batch cognitive work — no API keys needed, pure chain-of-thought reasoning
+2. **Opacity-guided prompting** ("ambiguous enough to need examples, evocative enough to
+   trigger insight") improved MARC yield from 30% to 48%
+3. **Language descriptions dramatically outperform examples** for gpt-oss-120b on ARC-AGI2
+   (58% vs 26%), confirming the value of the LARC-equivalent corpus
+4. **The pipeline is model-pluggable** — adding a new subject model requires only a
+   config.yaml entry and re-running Phases 4-8
