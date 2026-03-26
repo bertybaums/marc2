@@ -601,7 +601,11 @@ h2 { color: #333; }
 
 .nav { position: sticky; top: 0; background: white; padding: 10px 20px; z-index: 100;
        box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 20px; border-radius: 8px; }
-.nav-links { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.nav-links { display: none; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.nav-links.open { display: flex; max-height: 200px; overflow-y: auto; }
+.nav-toggle { background: none; border: 1px solid #ccc; border-radius: 4px; padding: 4px 10px;
+              cursor: pointer; font-size: 0.85em; color: #555; margin-left: 8px; }
+.nav-toggle:hover { background: #f5f5f5; }
 .nav-links a { padding: 3px 8px; background: #e3f2fd; border-radius: 4px;
                text-decoration: none; color: #1565c0; font-size: 0.85em; }
 .nav-links a:hover { background: #bbdefb; }
@@ -672,6 +676,12 @@ function expandAll() {
 function collapseAll() {
     document.querySelectorAll('.puzzle-body').forEach(function(el) { el.style.display = 'none'; });
     document.querySelectorAll('.toggle-icon').forEach(function(el) { el.classList.remove('open'); });
+}
+function toggleNav() {
+    var links = document.querySelector('.nav-links');
+    var btn = document.querySelector('.nav-toggle');
+    links.classList.toggle('open');
+    btn.textContent = links.classList.contains('open') ? 'Hide Jump Links' : 'Show Jump Links';
 }
 function switchVariant(tid, idx) {
     var panels = document.querySelectorAll('[id^=\"panel-' + tid + '-\"]');
@@ -752,12 +762,13 @@ def inspect(db_path, model_name, output_path, limit):
     )
     html_parts.append('<button onclick="expandAll()">Expand All</button> ')
     html_parts.append('<button onclick="collapseAll()">Collapse All</button> ')
+    html_parts.append('<button class="nav-toggle" onclick="toggleNav()">Show Jump Links</button>')
     html_parts.append(
         '<a href="compare.html" style="margin-left:10px;">'
         'Variant Comparison View &rarr;</a>'
     )
 
-    # Quick-jump links
+    # Quick-jump links (collapsed by default)
     html_parts.append('<div class="nav-links">')
     for row in marc_tasks:
         tid = row["task_id"]
