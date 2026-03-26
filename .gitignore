@@ -1,0 +1,21 @@
+# Data (too large for GitHub)
+marc2.db
+marc2.db-wal
+marc2.db-shm
+data/
+
+# Generated outputs
+report.html
+inspect.html
+compare.html
+hf_dataset/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# OS
+.DS_Store

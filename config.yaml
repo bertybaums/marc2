@@ -1,0 +1,63 @@
+# MARC2 Configuration
+#
+# Claude-powered work (Phases 1-3, 6, 8) runs via Claude Code subagents —
+# no model configs needed here for those phases.
+#
+# This file configures only the MindRouter subject models used in Phases 4-8.
+
+models:
+  # --- Subject models (MindRouter) ---
+  - name: gpt-oss-120b
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "openai/gpt-oss-120b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    max_tokens: 4096
+    timeout: 300.0
+    modality: text
+    role: subject
+
+  - name: gpt-oss-20b
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "openai/gpt-oss-20b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    max_tokens: 4096
+    timeout: 300.0
+    modality: text
+    role: subject
+
+  - name: qwen3.5-400b
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "qwen/qwen3.5-400b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    max_tokens: 4096
+    timeout: 300.0
+    modality: text
+    role: subject
+
+  # --- Extraction model (for two-pass protocol with subject models) ---
+  - name: gpt-oss-120b-extract
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "openai/gpt-oss-120b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    max_tokens: 2048
+    timeout: 120.0
+    modality: text
+    role: extraction
+
+experiment:
+  repeats: 1
+  conditions:
+    - examples_only
+    - language_only
+    - both
+
+data:
+  arc_agi2_dir: "data/arc-agi2"
