@@ -115,7 +115,7 @@ python export_hf_dataset.py       # → hf_dataset/
 |----------|------|
 | **HuggingFace Dataset** | [bertybaums/marc2](https://huggingface.co/datasets/bertybaums/marc2) |
 | **SQLite Database** (311MB) | [GitHub Release v1.0.0](https://github.com/bertybaums/marc2/releases/tag/v1.0.0) |
-| **DOI** | *pending — Zenodo integration* |
+| **DOI** | [10.5281/zenodo.19241782](https://doi.org/10.5281/zenodo.19241782) |
 
 ## Project Structure
 
@@ -163,7 +163,8 @@ marc2/
   title={MARC2: Metaphor Abstraction and Reasoning Corpus v2},
   author={Baum, Bert},
   year={2026},
-  url={https://github.com/bertybaums/marc2}
+  url={https://github.com/bertybaums/marc2},
+  doi={10.5281/zenodo.19241782}
 }
 ```
 
