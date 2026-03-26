@@ -113,6 +113,7 @@ python export_hf_dataset.py       # → hf_dataset/
 
 | Resource | Link |
 |----------|------|
+| **Interactive Inspector** | [bertybaums.github.io/marc2](https://bertybaums.github.io/marc2/) |
 | **HuggingFace Dataset** | [bertybaums/marc2](https://huggingface.co/datasets/bertybaums/marc2) |
 | **SQLite Database** (311MB) | [GitHub Release v1.0.0](https://github.com/bertybaums/marc2/releases/tag/v1.0.0) |
 | **DOI** | [10.5281/zenodo.19241782](https://doi.org/10.5281/zenodo.19241782) |
