@@ -14,6 +14,7 @@ models:
     api_key_env: MINDROUTER_API_KEY
     temperature: 0.0
     max_tokens: 4096
+    reasoning_effort: high
     timeout: 300.0
     modality: text
     role: subject
@@ -25,6 +26,19 @@ models:
     api_key_env: MINDROUTER_API_KEY
     temperature: 0.0
     max_tokens: 4096
+    reasoning_effort: high
+    timeout: 300.0
+    modality: text
+    role: subject
+
+  - name: qwen3.5-122b
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "qwen/qwen3.5-122b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    max_tokens: 4096
+    reasoning_effort: high
     timeout: 300.0
     modality: text
     role: subject
@@ -33,6 +47,18 @@ models:
     provider: openai_compat
     endpoint: "https://mindrouter.uidaho.edu/v1"
     model_id: "qwen/qwen3.5-400b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    max_tokens: 4096
+    reasoning_effort: high
+    timeout: 600.0
+    modality: text
+    role: subject
+
+  - name: nemotron-3-super
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "Nemotron-3-Super-120b"
     api_key_env: MINDROUTER_API_KEY
     temperature: 0.0
     max_tokens: 4096
