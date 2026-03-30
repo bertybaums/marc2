@@ -445,7 +445,8 @@ def _build_html(funnel, stats, counts, domain_yield, min_ks, acc_data, opacity_d
   h1 { border-bottom: 3px solid #636EFA; padding-bottom: 8px; }
   h2 { color: #444; margin-top: 40px; }
   .chart { margin: 30px 0; background: white; padding: 10px;
-           border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+           border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+           min-height: 450px; position: relative; overflow: hidden; }
   table { border-collapse: collapse; margin: 15px 0; width: 100%; }
   th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
   th { background: #636EFA; color: white; }
