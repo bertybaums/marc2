@@ -161,7 +161,7 @@
   <div class="stat"><div class="num">791</div><div class="label">Validated Descriptions</div></div>
   <div class="stat"><div class="num">350</div><div class="label">MARC-Eligible Tasks</div></div>
   <div class="stat"><div class="num">1,910</div><div class="label">Figurative Clues</div></div>
-  <div class="stat"><div class="num">5</div><div class="label">Subject Models</div></div>
+  <div class="stat"><div class="num">4</div><div class="label">Subject Models</div></div>
 </div>
 
 <section class="pipeline">
@@ -202,26 +202,33 @@
     <thead>
       <tr>
         <th>Model</th>
-        <th>Both-Required</th>
-        <th>MARC Verified</th>
+        <th>Ex. Only</th>
+        <th>Lang. Only</th>
+        <th>Both</th>
+        <th>MARC Tasks</th>
+        <th>MARC Clues</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td>gpt-oss-120b</td><td>54</td><td>42</td></tr>
-      <tr><td>qwen3.5-122b</td><td>64</td><td>19</td></tr>
-      <tr><td>nemotron-3-super</td><td>53</td><td>22</td></tr>
-      <tr><td>gpt-oss-20b</td><td>38</td><td>10</td></tr>
-      <tr><td>qwen3.5-400b</td><td colspan="2" style="color: var(--text-muted); font-style:italic;">in progress</td></tr>
+      <tr><td>gpt-oss-120b</td><td>25.8%</td><td>58.2%</td><td>51.5%</td><td>104</td><td>848</td></tr>
+      <tr><td>qwen3.5-122b</td><td>11.6%</td><td>40.8%</td><td>31.7%</td><td>77</td><td>322</td></tr>
+      <tr><td>gpt-oss-20b</td><td>11.0%</td><td>42.1%</td><td>27.1%</td><td>67</td><td>261</td></tr>
+      <tr><td>nemotron-3-super</td><td>9.6%</td><td>41.0%</td><td>35.5%</td><td>57</td><td>235</td></tr>
     </tbody>
   </table>
   <p style="font-size: 0.82em; color: var(--text-secondary); margin-top: 8px;">
-    "Both-required" = tasks where examples alone and language alone both fail, but together succeed.
-    "MARC Verified" = both-required tasks confirmed with figurative (not literal) descriptions.
+    Baseline accuracy on 791 validated tasks under three conditions. "MARC Tasks" = unique tasks
+    satisfying the full MARC property (examples fail, figurative alone fails, figurative + examples succeed).
+    "MARC Clues" = total figurative descriptions exhibiting the property across all variants.
   </p>
 </section>
 
 <section class="views">
   <h2>Interactive Views</h2>
+  <p style="font-size: 0.92em; color: var(--text-secondary); margin: 0 0 14px;">
+    Featured views use <strong style="color: var(--text-primary);">gpt-oss-120b</strong> as the primary subject model (highest baseline accuracy and MARC yield).
+    Views for all four models are available below.
+  </p>
   <div class="view-cards">
     <a class="view-card" href="report.html">
       <div class="title">Analysis Report</div>
@@ -233,9 +240,30 @@
     </a>
     <a class="view-card" href="compare.html">
       <div class="title">Variant Comparison</div>
-      <div class="desc">Side-by-side comparison of 15 domain-diverse metaphors per puzzle across models.</div>
+      <div class="desc">Side-by-side comparison of 15 domain-diverse metaphors per puzzle.</div>
     </a>
   </div>
+  <details style="margin-top: 16px;">
+    <summary style="cursor: pointer; color: var(--orange); font-size: 0.92em; font-weight: 600;">Views for other subject models</summary>
+    <div style="margin-top: 10px; font-size: 0.88em; display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 6px 14px; align-items: center;">
+      <span style="font-weight: 600; color: var(--text-secondary);">Model</span>
+      <span style="font-weight: 600; color: var(--text-secondary);">Report</span>
+      <span style="font-weight: 600; color: var(--text-secondary);">Inspector</span>
+      <span style="font-weight: 600; color: var(--text-secondary);">Comparison</span>
+      <span>qwen3.5-122b</span>
+      <a href="report-qwen3.5-122b.html">report</a>
+      <a href="inspect-qwen3.5-122b.html">inspector</a>
+      <a href="compare-qwen3.5-122b.html">comparison</a>
+      <span>gpt-oss-20b</span>
+      <a href="report-gpt-oss-20b.html">report</a>
+      <a href="inspect-gpt-oss-20b.html">inspector</a>
+      <a href="compare-gpt-oss-20b.html">comparison</a>
+      <span>nemotron-3-super</span>
+      <a href="report-nemotron-3-super.html">report</a>
+      <a href="inspect-nemotron-3-super.html">inspector</a>
+      <a href="compare-nemotron-3-super.html">comparison</a>
+    </div>
+  </details>
 </section>
 
 <footer>
