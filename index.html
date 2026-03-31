@@ -6,109 +6,113 @@
 <title>MARC2 — Metaphor Abstraction and Reasoning Corpus v2</title>
 <style>
   :root {
-    --accent: #636EFA;
-    --accent-light: #e8eaff;
-    --bg: #fafafa;
-    --card-bg: #fff;
-    --text: #222;
-    --text-muted: #666;
-    --border: #e0e0e0;
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #242424;
+    --bg-card: #2a2a2a;
+    --bg-card-hover: #323232;
+    --orange: #e8620a;
+    --orange-light: #f07a2a;
+    --orange-dim: rgba(232, 98, 10, 0.15);
+    --text-primary: #e8e8e8;
+    --text-secondary: #a0a0a0;
+    --text-muted: #707070;
+    --border: #3a3a3a;
   }
   * { box-sizing: border-box; }
   body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     max-width: 960px; margin: 0 auto; padding: 40px 24px 60px;
-    background: var(--bg); color: var(--text); line-height: 1.6;
+    background: var(--bg-primary); color: var(--text-primary); line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
   }
+  a { color: var(--orange); text-decoration: none; transition: color 0.2s; }
+  a:hover { color: var(--orange-light); }
 
   /* Header */
   header { margin-bottom: 48px; }
-  h1 { font-size: 2.4em; margin: 0 0 4px; color: var(--text); }
-  h1 span { color: var(--accent); }
-  .tagline { font-size: 1.15em; color: var(--text-muted); margin: 0 0 6px; }
-  .date { font-size: 0.85em; color: #999; }
+  h1 { font-size: 2.4em; margin: 0 0 4px; color: var(--orange); }
+  .tagline { font-size: 1.15em; color: var(--text-secondary); margin: 0 0 6px; }
+  .date { font-size: 0.85em; color: var(--text-muted); }
 
   /* About */
   .about { margin-bottom: 48px; }
-  .about h2 { font-size: 1.3em; color: var(--accent); margin: 0 0 12px; border: none; }
+  .about h2 { font-size: 1.3em; color: var(--orange); margin: 0 0 12px; }
   .about p { margin: 0 0 14px; }
-  .about strong { color: var(--text); }
+  .about strong { color: var(--text-primary); }
 
   /* Stats grid */
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
            gap: 14px; margin-bottom: 48px; }
   .stat {
-    background: var(--card-bg); border-radius: 10px; padding: 20px 16px;
-    text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    background: var(--bg-card); border-radius: 10px; padding: 20px 16px;
+    text-align: center; border: 1px solid var(--border);
   }
-  .stat .num { font-size: 1.8em; font-weight: 700; color: var(--accent); line-height: 1.1; }
-  .stat .label { font-size: 0.82em; color: var(--text-muted); margin-top: 4px; }
+  .stat .num { font-size: 1.8em; font-weight: 700; color: var(--orange); line-height: 1.1; }
+  .stat .label { font-size: 0.82em; color: var(--text-secondary); margin-top: 4px; }
 
   /* Pipeline */
   .pipeline { margin-bottom: 48px; }
-  .pipeline h2 { font-size: 1.3em; color: var(--accent); margin: 0 0 16px; }
+  .pipeline h2 { font-size: 1.3em; color: var(--orange); margin: 0 0 16px; }
   .phase-group-label {
     font-size: 0.78em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--accent); margin: 20px 0 8px; padding-left: 4px;
+    color: var(--orange); margin: 20px 0 8px; padding-left: 4px;
   }
   .phase-group-label:first-of-type { margin-top: 0; }
   .phases { display: flex; flex-direction: column; gap: 8px; }
   .phase {
     display: flex; align-items: baseline; gap: 12px; padding: 10px 14px;
-    background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--accent);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    background: var(--bg-card); border-radius: 8px; border-left: 3px solid var(--orange);
+    border: 1px solid var(--border); border-left: 3px solid var(--orange);
   }
-  .phase .num { font-weight: 700; color: var(--accent); min-width: 18px; }
+  .phase .num { font-weight: 700; color: var(--orange); min-width: 18px; }
   .phase .desc { flex: 1; font-size: 0.92em; }
   .phase .result { font-size: 0.82em; color: var(--text-muted); white-space: nowrap; }
 
   /* MARC property box */
   .marc-box {
-    background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px;
+    background: var(--orange-dim); border: 1px solid rgba(232, 98, 10, 0.3); border-radius: 10px;
     padding: 20px 24px; margin-bottom: 48px;
   }
-  .marc-box h2 { font-size: 1.15em; margin: 0 0 10px; color: #e65100; }
+  .marc-box h2 { font-size: 1.15em; margin: 0 0 10px; color: var(--orange); }
   .marc-box p { margin: 0 0 8px; font-size: 0.95em; }
   .marc-cond { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 0; padding: 0; list-style: none; }
   .marc-cond li { font-size: 0.92em; padding-left: 24px; position: relative; }
   .marc-cond li::before { position: absolute; left: 0; font-weight: bold; }
-  .marc-cond li:nth-child(1)::before { content: '\2717'; color: #e53935; }
-  .marc-cond li:nth-child(2)::before { content: '\2717'; color: #e53935; }
-  .marc-cond li:nth-child(3)::before { content: '\2713'; color: #43a047; }
+  .marc-cond li:nth-child(1)::before { content: '\2717'; color: #ef5350; }
+  .marc-cond li:nth-child(2)::before { content: '\2717'; color: #ef5350; }
+  .marc-cond li:nth-child(3)::before { content: '\2713'; color: #66bb6a; }
 
   /* Models table */
   .models { margin-bottom: 48px; }
-  .models h2 { font-size: 1.3em; color: var(--accent); margin: 0 0 12px; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.9em; background: var(--card-bg);
-          border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-  th { background: var(--accent); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
+  .models h2 { font-size: 1.3em; color: var(--orange); margin: 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9em; background: var(--bg-card);
+          border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  th { background: var(--orange); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
   td { padding: 10px 14px; border-top: 1px solid var(--border); }
-  tr:hover td { background: var(--accent-light); }
+  tr:hover td { background: var(--bg-card-hover); }
   td:nth-child(n+2) { text-align: center; }
   th:nth-child(n+2) { text-align: center; }
 
   /* Interactive views */
   .views { margin-bottom: 48px; }
-  .views h2 { font-size: 1.3em; color: var(--accent); margin: 0 0 14px; }
+  .views h2 { font-size: 1.3em; color: var(--orange); margin: 0 0 14px; }
   .view-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
   .view-card {
-    display: block; text-decoration: none; color: var(--text);
-    background: var(--card-bg); border-radius: 10px; padding: 22px 20px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 2px solid transparent;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    display: block; text-decoration: none; color: var(--text-primary);
+    background: var(--bg-card); border-radius: 10px; padding: 22px 20px;
+    border: 1px solid var(--border);
+    transition: border-color 0.2s, background 0.2s;
   }
-  .view-card:hover { border-color: var(--accent); box-shadow: 0 3px 12px rgba(99,110,250,0.15); }
-  .view-card .title { font-size: 1.1em; font-weight: 600; margin-bottom: 6px; color: var(--accent); }
-  .view-card .desc { font-size: 0.85em; color: var(--text-muted); line-height: 1.5; }
+  .view-card:hover { border-color: var(--orange); background: var(--bg-card-hover); }
+  .view-card .title { font-size: 1.1em; font-weight: 600; margin-bottom: 6px; color: var(--orange); }
+  .view-card .desc { font-size: 0.85em; color: var(--text-secondary); line-height: 1.5; }
 
   /* Footer */
   footer {
     margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
-    font-size: 0.85em; color: #999; display: flex; flex-wrap: wrap; gap: 6px 16px;
+    font-size: 0.85em; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 6px 16px;
     align-items: center;
   }
-  footer a { color: var(--accent); text-decoration: none; }
-  footer a:hover { text-decoration: underline; }
 
   @media (max-width: 600px) {
     body { padding: 24px 16px 40px; }
@@ -121,7 +125,7 @@
 <body>
 
 <header>
-  <h1><span>MARC2</span></h1>
+  <h1>MARC2</h1>
   <p class="tagline">Metaphor Abstraction and Reasoning Corpus v2</p>
   <p class="date">March 31, 2026</p>
 </header>
@@ -186,7 +190,7 @@
     <li>Figurative description alone <strong>fails</strong></li>
     <li>Figurative description + examples <strong>succeed</strong></li>
   </ul>
-  <p style="margin-top: 12px; font-size: 0.9em; color: var(--text-muted);">
+  <p style="margin-top: 12px; font-size: 0.9em; color: var(--text-secondary);">
     This three-way contrast isolates the unique contribution of figurative language&mdash;it
     is neither a substitute for examples nor redundant with them.
   </p>
@@ -207,10 +211,10 @@
       <tr><td>qwen3.5-122b</td><td>64</td><td>19</td></tr>
       <tr><td>nemotron-3-super</td><td>53</td><td>22</td></tr>
       <tr><td>gpt-oss-20b</td><td>38</td><td>10</td></tr>
-      <tr><td>qwen3.5-400b</td><td colspan="2" style="color:#999; font-style:italic;">in progress</td></tr>
+      <tr><td>qwen3.5-400b</td><td colspan="2" style="color: var(--text-muted); font-style:italic;">in progress</td></tr>
     </tbody>
   </table>
-  <p style="font-size: 0.82em; color: var(--text-muted); margin-top: 8px;">
+  <p style="font-size: 0.82em; color: var(--text-secondary); margin-top: 8px;">
     "Both-required" = tasks where examples alone and language alone both fail, but together succeed.
     "MARC Verified" = both-required tasks confirmed with figurative (not literal) descriptions.
   </p>
@@ -239,7 +243,7 @@
   <a href="https://huggingface.co/datasets/bertybaums/marc2">HuggingFace</a>
   <a href="https://doi.org/10.5281/zenodo.19241782">DOI</a>
   <span style="flex: 1;"></span>
-  <span>Baum &amp; Locke, University of Idaho, 2026</span>
+  <span>Bert Baumgaertner, University of Idaho, 2026</span>
 </footer>
 
 </body>
