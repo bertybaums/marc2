@@ -1,26 +1,246 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>MARC2 — Interactive Views</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MARC2 — Metaphor Abstraction and Reasoning Corpus v2</title>
 <style>
-body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 80px auto; padding: 20px; }
-h1 { margin-bottom: 8px; }
-.subtitle { color: #666; margin-bottom: 40px; }
-a { display: block; font-size: 1.2em; padding: 16px 20px; margin: 12px 0; background: #f5f5f5; border-radius: 8px; text-decoration: none; color: #333; }
-a:hover { background: #e8e8e8; }
-a span { display: block; font-size: 0.75em; color: #888; margin-top: 4px; }
+  :root {
+    --accent: #636EFA;
+    --accent-light: #e8eaff;
+    --bg: #fafafa;
+    --card-bg: #fff;
+    --text: #222;
+    --text-muted: #666;
+    --border: #e0e0e0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    max-width: 960px; margin: 0 auto; padding: 40px 24px 60px;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+
+  /* Header */
+  header { margin-bottom: 48px; }
+  h1 { font-size: 2.4em; margin: 0 0 4px; color: var(--text); }
+  h1 span { color: var(--accent); }
+  .tagline { font-size: 1.15em; color: var(--text-muted); margin: 0 0 6px; }
+  .date { font-size: 0.85em; color: #999; }
+
+  /* About */
+  .about { margin-bottom: 48px; }
+  .about h2 { font-size: 1.3em; color: var(--accent); margin: 0 0 12px; border: none; }
+  .about p { margin: 0 0 14px; }
+  .about strong { color: var(--text); }
+
+  /* Stats grid */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+           gap: 14px; margin-bottom: 48px; }
+  .stat {
+    background: var(--card-bg); border-radius: 10px; padding: 20px 16px;
+    text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .stat .num { font-size: 1.8em; font-weight: 700; color: var(--accent); line-height: 1.1; }
+  .stat .label { font-size: 0.82em; color: var(--text-muted); margin-top: 4px; }
+
+  /* Pipeline */
+  .pipeline { margin-bottom: 48px; }
+  .pipeline h2 { font-size: 1.3em; color: var(--accent); margin: 0 0 16px; }
+  .phase-group-label {
+    font-size: 0.78em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--accent); margin: 20px 0 8px; padding-left: 4px;
+  }
+  .phase-group-label:first-of-type { margin-top: 0; }
+  .phases { display: flex; flex-direction: column; gap: 8px; }
+  .phase {
+    display: flex; align-items: baseline; gap: 12px; padding: 10px 14px;
+    background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--accent);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .phase .num { font-weight: 700; color: var(--accent); min-width: 18px; }
+  .phase .desc { flex: 1; font-size: 0.92em; }
+  .phase .result { font-size: 0.82em; color: var(--text-muted); white-space: nowrap; }
+
+  /* MARC property box */
+  .marc-box {
+    background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px;
+    padding: 20px 24px; margin-bottom: 48px;
+  }
+  .marc-box h2 { font-size: 1.15em; margin: 0 0 10px; color: #e65100; }
+  .marc-box p { margin: 0 0 8px; font-size: 0.95em; }
+  .marc-cond { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 0; padding: 0; list-style: none; }
+  .marc-cond li { font-size: 0.92em; padding-left: 24px; position: relative; }
+  .marc-cond li::before { position: absolute; left: 0; font-weight: bold; }
+  .marc-cond li:nth-child(1)::before { content: '\2717'; color: #e53935; }
+  .marc-cond li:nth-child(2)::before { content: '\2717'; color: #e53935; }
+  .marc-cond li:nth-child(3)::before { content: '\2713'; color: #43a047; }
+
+  /* Models table */
+  .models { margin-bottom: 48px; }
+  .models h2 { font-size: 1.3em; color: var(--accent); margin: 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9em; background: var(--card-bg);
+          border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  th { background: var(--accent); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); }
+  tr:hover td { background: var(--accent-light); }
+  td:nth-child(n+2) { text-align: center; }
+  th:nth-child(n+2) { text-align: center; }
+
+  /* Interactive views */
+  .views { margin-bottom: 48px; }
+  .views h2 { font-size: 1.3em; color: var(--accent); margin: 0 0 14px; }
+  .view-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .view-card {
+    display: block; text-decoration: none; color: var(--text);
+    background: var(--card-bg); border-radius: 10px; padding: 22px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 2px solid transparent;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .view-card:hover { border-color: var(--accent); box-shadow: 0 3px 12px rgba(99,110,250,0.15); }
+  .view-card .title { font-size: 1.1em; font-weight: 600; margin-bottom: 6px; color: var(--accent); }
+  .view-card .desc { font-size: 0.85em; color: var(--text-muted); line-height: 1.5; }
+
+  /* Footer */
+  footer {
+    margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 0.85em; color: #999; display: flex; flex-wrap: wrap; gap: 6px 16px;
+    align-items: center;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    body { padding: 24px 16px 40px; }
+    h1 { font-size: 1.8em; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .view-cards { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
-<h1>MARC2</h1>
-<p class="subtitle">Metaphor Abstraction and Reasoning Corpus v2 — March 26, 2026</p>
-<a href="report.html">Analysis Report <span>Pipeline funnel, baseline accuracy, MARC yield by domain, opacity analysis</span></a>
-<a href="inspect.html">Puzzle Inspector <span>Browse 104 MARC puzzles with grids, descriptions, figurative variants, and trial results</span></a>
-<a href="compare.html">Variant Comparison <span>Side-by-side comparison of 15 domain-diverse metaphors per puzzle</span></a>
-<p style="margin-top: 40px; font-size: 0.85em; color: #999;">
-<a href="https://github.com/bertybaums/marc2" style="display:inline; background:none; padding:0; font-size:1em;">GitHub</a> ·
-<a href="https://huggingface.co/datasets/bertybaums/marc2" style="display:inline; background:none; padding:0; font-size:1em;">HuggingFace</a> ·
-<a href="https://doi.org/10.5281/zenodo.19241782" style="display:inline; background:none; padding:0; font-size:1em;">DOI</a>
-</p>
+
+<header>
+  <h1><span>MARC2</span></h1>
+  <p class="tagline">Metaphor Abstraction and Reasoning Corpus v2</p>
+  <p class="date">March 31, 2026</p>
+</header>
+
+<section class="about">
+  <h2>About</h2>
+  <p>
+    MARC2 is a dataset of abstract reasoning puzzles drawn from
+    <a href="https://arcprize.org/arc-agi-2">ARC-AGI2</a> where
+    <strong>figurative language</strong>&mdash;metaphors, analogies, and
+    domain-grounded reframings&mdash;demonstrably helps AI models solve tasks
+    they cannot crack from examples alone.
+  </p>
+  <p>
+    The dataset exploits the <strong>capability gap between models</strong>.
+    Claude&nbsp;Opus&nbsp;4.6 (82% on ARC-AGI2 training) solves tasks and distills its
+    reasoning into language-complete descriptions. Smaller subject models are then
+    tested under controlled conditions&mdash;examples only, language only, and
+    both together&mdash;to identify where figurative reframings unlock
+    understanding that neither modality provides on its own.
+  </p>
+  <p>
+    Each verified puzzle ships with <strong>15 domain-diverse figurative
+    variants</strong> spanning domains from music theory to fluid dynamics,
+    enabling fine-grained study of how conceptual framing interacts with model
+    reasoning.
+  </p>
+</section>
+
+<div class="stats">
+  <div class="stat"><div class="num">1,120</div><div class="label">ARC-AGI2 Tasks</div></div>
+  <div class="stat"><div class="num">865</div><div class="label">Solved by Claude</div></div>
+  <div class="stat"><div class="num">791</div><div class="label">Validated Descriptions</div></div>
+  <div class="stat"><div class="num">350</div><div class="label">MARC-Eligible Tasks</div></div>
+  <div class="stat"><div class="num">1,910</div><div class="label">Figurative Clues</div></div>
+  <div class="stat"><div class="num">5</div><div class="label">Subject Models</div></div>
+</div>
+
+<section class="pipeline">
+  <h2>Pipeline</h2>
+  <p class="phase-group-label">Upper Bound &mdash; Claude Opus 4.6</p>
+  <div class="phases">
+    <div class="phase"><span class="num">1</span><span class="desc">Solve ARC-AGI2 tasks via subagents, capturing reasoning traces</span><span class="result">865 / 1,000 training</span></div>
+    <div class="phase"><span class="num">2</span><span class="desc">Distill reasoning into LARC-style language-complete descriptions</span><span class="result">see / do / grid</span></div>
+    <div class="phase"><span class="num">3</span><span class="desc">Validate descriptions: fresh subagent solves from description alone</span><span class="result">791 validated</span></div>
+  </div>
+  <p class="phase-group-label">Lower Bound &mdash; Subject Models</p>
+  <div class="phases">
+    <div class="phase"><span class="num">4</span><span class="desc">Baseline 3-condition testing (examples only, language only, both)</span><span class="result">per model</span></div>
+    <div class="phase"><span class="num">5</span><span class="desc">Classify tasks: examples-sufficient, language-sufficient, both-required, unsolvable</span><span class="result">4 subsets</span></div>
+    <div class="phase"><span class="num">6</span><span class="desc">Generate figurative descriptions from validated literal ones</span><span class="result">350 tasks</span></div>
+    <div class="phase"><span class="num">7</span><span class="desc">Test figurative descriptions on subject models, verify MARC property</span><span class="result">per model</span></div>
+    <div class="phase"><span class="num">8</span><span class="desc">Generate 15 domain-diverse alternative figurative clues per task</span><span class="result">1,910 clues</span></div>
+  </div>
+</section>
+
+<section class="marc-box">
+  <h2>The MARC Property</h2>
+  <p>A task has the MARC property for a given model when:</p>
+  <ul class="marc-cond">
+    <li>Examples alone <strong>fail</strong></li>
+    <li>Figurative description alone <strong>fails</strong></li>
+    <li>Figurative description + examples <strong>succeed</strong></li>
+  </ul>
+  <p style="margin-top: 12px; font-size: 0.9em; color: var(--text-muted);">
+    This three-way contrast isolates the unique contribution of figurative language&mdash;it
+    is neither a substitute for examples nor redundant with them.
+  </p>
+</section>
+
+<section class="models">
+  <h2>Subject Models</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Both-Required</th>
+        <th>MARC Verified</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>gpt-oss-120b</td><td>54</td><td>42</td></tr>
+      <tr><td>qwen3.5-122b</td><td>64</td><td>19</td></tr>
+      <tr><td>nemotron-3-super</td><td>53</td><td>22</td></tr>
+      <tr><td>gpt-oss-20b</td><td>38</td><td>10</td></tr>
+      <tr><td>qwen3.5-400b</td><td colspan="2" style="color:#999; font-style:italic;">in progress</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size: 0.82em; color: var(--text-muted); margin-top: 8px;">
+    "Both-required" = tasks where examples alone and language alone both fail, but together succeed.
+    "MARC Verified" = both-required tasks confirmed with figurative (not literal) descriptions.
+  </p>
+</section>
+
+<section class="views">
+  <h2>Interactive Views</h2>
+  <div class="view-cards">
+    <a class="view-card" href="report.html">
+      <div class="title">Analysis Report</div>
+      <div class="desc">Pipeline funnel, baseline accuracy, MARC yield by domain, opacity analysis.</div>
+    </a>
+    <a class="view-card" href="inspect.html">
+      <div class="title">Puzzle Inspector</div>
+      <div class="desc">Browse MARC puzzles with grids, literal and figurative descriptions, and trial results.</div>
+    </a>
+    <a class="view-card" href="compare.html">
+      <div class="title">Variant Comparison</div>
+      <div class="desc">Side-by-side comparison of 15 domain-diverse metaphors per puzzle across models.</div>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <a href="https://github.com/bertybaums/marc2">GitHub</a>
+  <a href="https://huggingface.co/datasets/bertybaums/marc2">HuggingFace</a>
+  <a href="https://doi.org/10.5281/zenodo.19241782">DOI</a>
+  <span style="flex: 1;"></span>
+  <span>Baum &amp; Locke, University of Idaho, 2026</span>
+</footer>
+
 </body>
 </html>
