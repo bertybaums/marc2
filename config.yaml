@@ -55,6 +55,28 @@ models:
     modality: text
     role: subject
 
+  - name: gemma-4-31b
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "google/gemma-4-31b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    max_tokens: 4096
+    timeout: 300.0
+    modality: text
+    role: subject
+
+  - name: gemma-4-26b
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "google/gemma-4-26b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    max_tokens: 4096
+    timeout: 300.0
+    modality: text
+    role: subject
+
   - name: nemotron-3-super
     provider: openai_compat
     endpoint: "https://mindrouter.uidaho.edu/v1"
