@@ -5,6 +5,15 @@
 #
 # This file configures only the MindRouter subject models used in Phases 4-8.
 
+# MindRouter rate limiting. The admin-set per-account cap is 200 req/min;
+# without a client-side limiter, 429 retries can cascade past the cap. The
+# token bucket in models.py is process-global — every API call (including
+# retries) acquires a token first. See _RCDS/compression/CLAUDE.md for the
+# longer history.
+mindrouter:
+  max_req_per_minute: 200
+  burst_capacity: 10
+
 models:
   # --- Subject models (MindRouter) ---
   - name: gpt-oss-120b
@@ -76,6 +85,38 @@ models:
     timeout: 300.0
     modality: text
     role: subject
+
+  - name: qwen3.6-27b
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "qwen/qwen3.6-27b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    # Qwen exposes thinking as a single boolean, not a low/medium/high effort
+    # knob. "High thinking" means thinking ON + enough token budget for the
+    # trace AND the grid output. 27b has 2 backends on MR and they degrade on
+    # large generations: 12288 + thinking caused "All 3 backend attempts
+    # failed" 502s on 2026-05-05; 8192 fits the budget. Use --concurrency 2
+    # to match the backend count.
+    max_tokens: 8192
+    timeout: 600.0
+    modality: text
+    role: subject
+    enable_thinking: true
+
+  - name: qwen3.6-35b
+    provider: openai_compat
+    endpoint: "https://mindrouter.uidaho.edu/v1"
+    model_id: "qwen/qwen3.6-35b"
+    api_key_env: MINDROUTER_API_KEY
+    temperature: 0.0
+    # 35b's backends were healthier than 27b's at smoke-test time (2026-05-05):
+    # tolerated concurrency 4 with max_tokens=12288 + thinking, ~40s per call.
+    max_tokens: 12288
+    timeout: 600.0
+    modality: text
+    role: subject
+    enable_thinking: true
 
   - name: nemotron-3-super
     provider: openai_compat

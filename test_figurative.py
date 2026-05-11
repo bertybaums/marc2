@@ -20,7 +20,7 @@ from db import (
     update_figurative_evaluation, get_subsets,
 )
 from grids import parse_response_grid, compare_grids
-from models import call_llm_two_pass
+from models import call_llm_two_pass, configure_rate_limit_from_config
 from prompts import build_prompt, build_extraction_messages
 from tasks import load_config
 from utils import find_model_config, get_extraction_model_config, load_arc, serialize_prompt
@@ -118,6 +118,7 @@ def cli():
 def test(config_path, db_path, model_name, concurrency, limit, dry_run):
     """Test figurative descriptions across example counts (k=0,1,...,num_train)."""
     config = load_config(config_path)
+    configure_rate_limit_from_config(config)
     model_config = find_model_config(config, model_name)
     extraction_config = get_extraction_model_config(config, model_name)
 

@@ -6,20 +6,90 @@ This module handles MindRouter API calls for subject model testing (Phases 4-8).
 Supports a two-pass approach for reasoning models:
   Pass 1: Let the model reason freely (unstructured)
   Pass 2: Feed reasoning back and extract structured JSON output
+
+Includes a process-global token-bucket rate limiter shared across all worker
+threads. MindRouter enforces a 200 req/min per-account cap (admin-set). Every
+outbound request — including 429 retries — must acquire a token first, so a
+fast 429-retry cascade can't blow past the cap.
 """
 
 import base64
 import json
 import os
+import threading
 import time
 
 import httpx
+
+
+# --- Process-global rate limiter ---------------------------------------------
+#
+# The compression project (~/Documents/_RCDS/compression) learned the hard way
+# that retries-on-429 fire so quickly (~200ms response time) that without a
+# shared limiter, retries can amplify outgoing rate 2-5x and self-reinforce
+# 429 cascades. Solution: every HTTP call acquires a token from a single
+# process-wide bucket before firing — including retries.
+
+class _TokenBucket:
+    """Thread-safe token bucket. acquire() blocks until a token is available."""
+
+    def __init__(self, rate_per_sec: float, burst: float):
+        self.rate = rate_per_sec
+        self.burst = max(1.0, burst)
+        self._tokens = self.burst
+        self._last_refill = time.monotonic()
+        self._lock = threading.Lock()
+
+    def acquire(self) -> None:
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                self._tokens = min(
+                    self.burst, self._tokens + (now - self._last_refill) * self.rate
+                )
+                self._last_refill = now
+                if self._tokens >= 1.0:
+                    self._tokens -= 1.0
+                    return
+                wait_time = (1.0 - self._tokens) / self.rate
+            time.sleep(wait_time)
+
+
+_RATE_LIMITER: _TokenBucket | None = None
+_RATE_LOCK = threading.Lock()
+
+
+def set_rate_limit(rpm: float, burst: float = 10.0) -> None:
+    """Configure the process-global rate limiter. Idempotent: last call wins."""
+    global _RATE_LIMITER
+    with _RATE_LOCK:
+        _RATE_LIMITER = _TokenBucket(rate_per_sec=rpm / 60.0, burst=burst)
+
+
+def configure_rate_limit_from_config(config: dict) -> None:
+    """Read mindrouter.max_req_per_minute from config and set the limiter."""
+    mr = config.get("mindrouter") or {}
+    rpm = mr.get("max_req_per_minute", 100)  # conservative default
+    burst = mr.get("burst_capacity", 10)
+    set_rate_limit(rpm, burst)
+
+
+def _acquire_token() -> None:
+    if _RATE_LIMITER is not None:
+        _RATE_LIMITER.acquire()
+
+
+# --- HTTP call ---------------------------------------------------------------
+
+_RATE_LIMIT_MAX_RETRIES = 5
+_RATE_LIMIT_BACKOFF_BASE = 2.0  # seconds
 
 
 def call_llm(model_config, messages):
     """Call an LLM and return (raw_response_json, response_text, latency_ms).
 
     Messages follow OpenAI format: [{"role": ..., "content": ...}]
+    Acquires a rate-limit token before each request (including 429 retries).
     """
     api_key = _get_api_key(model_config)
     endpoint = model_config["endpoint"].rstrip("/")
@@ -38,11 +108,50 @@ def call_llm(model_config, messages):
         body["max_tokens"] = model_config["max_tokens"]
     if "reasoning_effort" in model_config:
         body["reasoning_effort"] = model_config["reasoning_effort"]
+    # Qwen-style thinking-mode toggle (e.g. qwen3.6-27b). MR honors this via
+    # chat_template_kwargs.enable_thinking — false skips the hidden reasoning
+    # trace and is ~16x faster, at the cost of more output-format violations.
+    if "enable_thinking" in model_config:
+        body["chat_template_kwargs"] = {"enable_thinking": model_config["enable_thinking"]}
 
+    timeout = model_config.get("timeout", 300.0)
     start = time.monotonic()
-    with httpx.Client(timeout=model_config.get("timeout", 300.0)) as client:
-        resp = client.post(url, json=body, headers=headers)
-        resp.raise_for_status()
+    last_retryable_body = None
+    last_retryable_status = None
+    # Retry on rate limits (429), transient server errors (5xx), and socket-
+    # level errors (DNS failures, connection resets, timeouts). MR's qwen
+    # backends have shown cold-start 502 storms; client wifi blips have
+    # produced [Errno 8] DNS errors that previously became permanent failures.
+    with httpx.Client(timeout=timeout) as client:
+        for attempt in range(_RATE_LIMIT_MAX_RETRIES):
+            _acquire_token()
+            try:
+                resp = client.post(url, json=body, headers=headers)
+            except (httpx.ConnectError, httpx.ReadError, httpx.WriteError,
+                    httpx.RemoteProtocolError, httpx.PoolTimeout,
+                    httpx.ConnectTimeout, httpx.ReadTimeout) as e:
+                last_retryable_body = f"{type(e).__name__}: {e}"[:200]
+                last_retryable_status = "network"
+                wait = _RATE_LIMIT_BACKOFF_BASE * (2 ** attempt)
+                time.sleep(wait)
+                continue
+            if resp.status_code == 429 or 500 <= resp.status_code < 600:
+                last_retryable_body = resp.text[:200]
+                last_retryable_status = resp.status_code
+                wait = _RATE_LIMIT_BACKOFF_BASE * (2 ** attempt)
+                time.sleep(wait)
+                continue
+            resp.raise_for_status()
+            break
+        else:
+            if last_retryable_status == "network":
+                raise httpx.ConnectError(
+                    f"network error after {_RATE_LIMIT_MAX_RETRIES} retries: {last_retryable_body}",
+                )
+            raise httpx.HTTPStatusError(
+                f"{last_retryable_status} after {_RATE_LIMIT_MAX_RETRIES} retries: {last_retryable_body}",
+                request=resp.request, response=resp,
+            )
     latency_ms = int((time.monotonic() - start) * 1000)
 
     raw = resp.text
